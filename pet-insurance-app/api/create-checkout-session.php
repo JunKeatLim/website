@@ -1,11 +1,15 @@
 <?php
 /**
- * Create Stripe Checkout Session for subscriptions.
+ * Create Stripe Checkout Session.
  *
  * Expects POST with:
  *   - pet_id
  *   - plan_id
+ *   - duration (1, 6, or 12)
  *   - csrf_token (body or X-CSRF-Token header)
+ *
+ * No subscription record is created here.
+ * The subscription is only created in checkout-success.php after payment confirms.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -63,6 +67,23 @@ try {
         json_error('Pet not found.', 404);
     }
 
+    // Check for existing active subscription (allow if expiring within 30 days)
+    $subCheck = $db->prepare('
+        SELECT id, end_date FROM subscriptions
+        WHERE pet_id = :pid AND user_id = :uid AND status = :status
+        LIMIT 1
+    ');
+    $subCheck->execute([':pid' => $petId, ':uid' => $userId, ':status' => 'active']);
+    $existingSub = $subCheck->fetch();
+    
+    if ($existingSub) {
+        $endDate = $existingSub['end_date'] ?? null;
+        $expiringWithin30Days = $endDate && strtotime($endDate) <= strtotime('+30 days');
+        if (!$expiringWithin30Days) {
+            json_error('This pet already has an active subscription.', 409);
+        }
+    }
+
     // Load plan
     $stmt = $db->prepare('SELECT * FROM insurance_plans WHERE id = :id AND is_active = 1 LIMIT 1');
     $stmt->execute([':id' => $planId]);
@@ -80,10 +101,9 @@ try {
     }
 
     // Find the project root (one level up from /api)
-    $rootPath = dirname(__DIR__); 
+    $rootPath = dirname(__DIR__);
     $autoloadPath = $rootPath . '/vendor/autoload.php';
 
-    // Debugging check
     if (!is_file($autoloadPath)) {
         json_error('Autoload file missing. System was looking in: ' . $autoloadPath, 503);
     }
@@ -104,49 +124,45 @@ try {
         $upd->execute([':cid' => $stripeCustomerId, ':id' => $userId]);
     }
 
-    // Create subscription row (status active until webhook / real flow)
-    $subStmt = $db->prepare('
-        INSERT INTO subscriptions (user_id, pet_id, plan_id, status, start_date)
-        VALUES (:uid, :pid, :plan_id, :status, :start_date)
-    ');
-    $subStmt->execute([
-        ':uid'        => $userId,
-        ':pid'        => $petId,
-        ':plan_id'    => $planId,
-        ':status'     => 'active',
-        ':start_date' => date('Y-m-d'),
-    ]);
-    $subscriptionId = (int) $db->lastInsertId();
+    // Get duration from form (default 12 months)
+    $duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 12;
+    if (!in_array($duration, [1, 6, 12], true)) {
+        $duration = 12;
+    }
 
-    $amountCents = (int) round(((float) $plan['monthly_premium']) * 100);
+    $discounts = [1 => 0, 6 => 0.05, 12 => 0.10];
+    $discount = $discounts[$duration] ?? 0;
+    $discountedMonthly = ((float) $plan['monthly_premium']) * (1 - $discount);
+    $totalAmount = $discountedMonthly * $duration;
+    $amountCents = (int) round($totalAmount * 100);
     if ($amountCents <= 0) {
         json_error('Invalid plan amount.', 400);
     }
 
     $baseUrl = (defined('BASE_PATH') ? BASE_PATH : '') . '/dashboard/subscriptions/';
-    $successUrl = $baseUrl . 'checkout-success.php?sub_id=' . $subscriptionId;
-    $cancelUrl  = $baseUrl . 'checkout-cancelled.php?sub_id=' . $subscriptionId;
-
-    // Stripe expects full URLs; if BASE_PATH is a path like /pet-insurance-app, build full URL
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $successUrlFull = $proto . '://' . $host . $successUrl . '&session_id={CHECKOUT_SESSION_ID}';
-    $cancelUrlFull  = $proto . '://' . $host . $cancelUrl;
+    $successUrlFull = $proto . '://' . $host . $baseUrl . 'checkout-success.php?session_id={CHECKOUT_SESSION_ID}';
+    $cancelUrlFull  = $proto . '://' . $host . $baseUrl . 'checkout-cancelled.php';
 
-    // Use subscription mode so Stripe creates a recurring subscription and we get stripe_subscription_id
+    $durationLabel = $duration . ($duration === 1 ? ' month' : ' months');
+
+    $monthlyCents = (int) round($discountedMonthly * 100);
+    $discountText = $discount > 0 ? ' (' . ($discount * 100) . '% off)' : '';
+
     $session = $stripe->checkout->sessions->create([
-        'mode' => 'subscription',
+        'mode' => 'payment',
         'customer' => $stripeCustomerId,
         'line_items' => [[
             'price_data' => [
                 'currency' => 'usd',
                 'product_data' => [
-                    'name' => $plan['name'] . ' plan for ' . $pet['name'],
+                    'name' => $plan['name'] . ' plan for ' . $pet['name'] . $discountText,
+                    'description' => '$' . number_format($discountedMonthly, 2) . '/mo × ' . $durationLabel . ' = $' . number_format($totalAmount, 2) . ' total',
                 ],
-                'unit_amount' => $amountCents,
-                'recurring' => ['interval' => 'month'],
+                'unit_amount' => $monthlyCents,
             ],
-            'quantity' => 1,
+            'quantity' => $duration,
         ]],
         'success_url' => $successUrlFull,
         'cancel_url'  => $cancelUrlFull,
@@ -154,7 +170,7 @@ try {
             'user_id'         => (string) $userId,
             'pet_id'          => (string) $petId,
             'plan_id'         => (string) $planId,
-            'subscription_id' => (string) $subscriptionId,
+            'duration_months' => (string) $duration,
         ],
     ]);
 
@@ -165,4 +181,3 @@ try {
     error_log('create-checkout-session: ' . $e->getMessage());
     json_error('Unable to start checkout. Please try again or contact support.', 502);
 }
-

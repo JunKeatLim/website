@@ -101,6 +101,15 @@ define('GCP_PROCESSOR_NAMES', [
     'other'      => 'RECEIPT_PARSER',
 ]);
 
+// ── reCAPTCHA ───────────────────────────────────────────────
+define('RECAPTCHA_SITE_KEY',   getenv('RECAPTCHA_SITE_KEY')   ?: '');
+define('RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY') ?: '');
+
+// ── Email Verification ──────────────────────────────────────
+define('VERIFICATION_MASTER_CODE', '000000');
+define('VERIFICATION_CODE_EXPIRY', 15); // minutes
+
+
 // ── AI Scanner Mode ─────────────────────────────────────────
 // 'mock'  = AIScannerMock (local dev, Phases 0-3, no GCP needed)
 // 'live'  = AIScanner (real Document AI, Phase 4+)

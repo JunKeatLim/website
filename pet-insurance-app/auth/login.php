@@ -75,8 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/../assets/css/style.css">
-    <link rel="stylesheet" href="/../assets/css/accessibility.css">
+    <link rel="stylesheet" href="<?= base_path() ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= base_path() ?>/assets/css/accessibility.css">
 </head>
 <body>
 
@@ -111,8 +111,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label class="form-label">Password</label>
                                 <input type="password" name="password" class="form-control" required>
                             </div>
-                            <button class="btn btn-primary w-100" style="background: var(--ps-teal); border-color: var(--ps-teal);">Log In</button>
-                            <p class="text-center mt-3 mb-0">No account? <a href="<?= base_path() ?>/auth/register.php">Register</a></p>
+                            <button class="btn btn-primary w-100">Log In</button>
+                            <p class="text-center mt-3 mb-0">No account? 
+                                <p class="text-center mb-0">
+                                    <a href="<?= base_path() ?>/auth/forgot-password.php" class="text-muted small">Forgot your password?</a>
+                                </p>
+                                <a href="<?= base_path() ?>/auth/register.php">Register</a>
+                            </p>
                         </form>
                     </div>
                 </div>

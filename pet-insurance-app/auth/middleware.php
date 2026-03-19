@@ -14,14 +14,25 @@
  */
 function requireLogin(): void {
     if (empty($_SESSION['user_id'])) {
-        header('Location: /auth/login.php');
+        header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '') . '/auth/login.php');
         exit;
     }
 }
 
 function isLoggedIn(): void {
     if (!empty($_SESSION['user_id'])) {
-        header('Location: /dashboard/my-pets.php');
+        header('Location: ' . (defined('BASE_PATH') ? BASE_PATH : '') . '/dashboard/my-pets.php');
+        exit;
+    }
+}
+
+/**
+ * Redirect to email verification if the user hasn't verified yet.
+ * Call after requireLogin() on pages that need verified users.
+ */
+function requireVerified(): void {
+    if (isset($_SESSION['email_verified']) && $_SESSION['email_verified'] === false) {
+        header('Location: ' . BASE_PATH . '/auth/verify-email.php');
         exit;
     }
 }

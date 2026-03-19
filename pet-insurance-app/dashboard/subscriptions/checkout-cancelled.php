@@ -18,10 +18,10 @@ requireLogin();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/accessibility.css">
+    <link rel="stylesheet" href="<?= base_path() ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= base_path() ?>/assets/css/accessibility.css">
 </head>
-<body class="bg-light">
+<body>
 
 <?php require_once __DIR__ . '/../../includes/navbar.php'; ?>
 
@@ -31,16 +31,16 @@ requireLogin();
             <div class="card border-0 shadow-sm">
                 <div class="card-body py-5">
                     <div class="text-warning mb-3">
-                        <i class="bi bi-x-circle" style="font-size: 4rem;" aria-hidden="true"></i>
+                        <i class="bi bi-x-circle" style="font-size: 4rem;"></i>
                     </div>
                     <h1 class="h3 mb-2">Payment cancelled</h1>
                     <p class="text-muted mb-4">
                         You left checkout before completing payment. No charge was made. You can try again whenever you're ready.
                     </p>
-                    <a href="/dashboard/subscriptions/purchase-coverage.php" class="btn btn-primary me-2">
+                    <a href="<?= base_path() ?>/dashboard/subscriptions/purchase-coverage.php" class="btn btn-primary me-2">
                         Try again
                     </a>
-                    <a href="/dashboard/my-pets.php" class="btn btn-outline-secondary">
+                    <a href="<?= base_path() ?>/dashboard/my-pets.php" class="btn btn-outline-secondary">
                         My Pets
                     </a>
                 </div>
