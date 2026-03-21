@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lockoutSeconds = 300; // 5 minutes
     $maxAttempts    = 5;
 
-    // Hi JK added this to reset lockout if the timer has expired
+    // reset lockout if the timer has expired
     if ($_SESSION['login_attempts'] >= $maxAttempts &&
         (time() - $_SESSION['login_last_attempt']) >= $lockoutSeconds) {
         $_SESSION['login_attempts'] = 0;
@@ -103,21 +103,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form method="POST" novalidate>
                             <?= csrfField() ?>
                             <div class="mb-3">
-                                <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control"
-                                       value="<?= esc($oldEmail) ?>" required autofocus>
+                                <label class="form-label" for="login-email">Email</label>
+                                <input type="email" id="login-email" name="email" class="form-control"
+                                       value="<?= esc($oldEmail) ?>" required autofocus autocomplete="email">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Password</label>
-                                <input type="password" name="password" class="form-control" required>
+                                <label class="form-label" for="login-password">Password</label>
+                                <input type="password" id="login-password" name="password" class="form-control" required autocomplete="current-password">
                             </div>
                             <button class="btn btn-primary w-100">Log In</button>
-                            <p class="text-center mt-3 mb-0">No account? 
-                                <p class="text-center mb-0">
-                                    <a href="<?= base_path() ?>/auth/forgot-password.php" class="text-muted small">Forgot your password?</a>
+                            <div class="auth-actions text-center mt-3">
+                                <a href="<?= base_path() ?>/auth/forgot-password.php" class="auth-link-muted">Forgot your password?</a>
+                                <p class="auth-register-copy mb-0 mt-2">
+                                    No account?
+                                    <a href="<?= base_path() ?>/auth/register.php" class="auth-link-primary">Register</a>
                                 </p>
-                                <a href="<?= base_path() ?>/auth/register.php">Register</a>
-                            </p>
+                            </div>
                         </form>
                     </div>
                 </div>

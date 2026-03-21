@@ -61,8 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="hero-shape hero-shape-2"></div>
         </div>
         <div class="container hero-content position-relative">
-            <div class="row justify-content-center py-5">
-                <div class="col-md-6 col-lg-5">
+            <div class="row align-items-center min-vh-75 py-5">
+                <div class="col-lg-5">
                     <div class="p-4 p-lg-5 rounded-3 shadow-lg auth-form-card">
                         <div class="text-center mb-4">
                             <i class="bi bi-key" style="font-size: 3rem; color: var(--ps-teal);"></i>
@@ -76,8 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php if ($success): ?>
                             <div class="alert alert-success"><?= $success ?></div>
                             <div class="text-center">
-                                <a href="<?= base_path() ?>/auth/reset-password.php" class="btn btn-primary"
-                                   style="background: var(--ps-teal); border-color: var(--ps-teal);">
+                                <a href="<?= base_path() ?>/auth/reset-password.php" class="btn btn-primary">
                                     Enter Reset Code
                                 </a>
                             </div>
@@ -85,10 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <form method="POST" novalidate>
                                 <?= csrfField() ?>
                                 <div class="mb-3">
-                                    <label class="form-label">Email Address</label>
-                                    <input type="email" name="email" class="form-control" required autofocus>
+                                    <label class="form-label" for="forgot-email">Email Address</label>
+                                    <input type="email" id="forgot-email" name="email" class="form-control" required autofocus autocomplete="email">
                                 </div>
-                                <button class="btn btn-primary w-100" style="background: var(--ps-teal); border-color: var(--ps-teal);">
+                                <button class="btn btn-primary w-100">
                                     Send Reset Code
                                 </button>
                             </form>
@@ -99,6 +98,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 ← Back to login
                             </a>
                         </div>
+                    </div>
+                </div>
+                <div class="col-lg-7 d-none d-lg-flex justify-content-center align-items-center" aria-hidden="true">
+                    <div class="hero-card-float auth-float-cards">
+                        <div class="float-card fc-1">
+                            <i class="bi bi-envelope-check"></i>
+                            <span>Reset link sent</span>
+                            <strong>Check your inbox</strong>
+                        </div>
+                        <div class="float-card fc-2">
+                            <i class="bi bi-shield-lock"></i>
+                            <span>Secure reset</span>
+                            <div class="scan-bar"><div class="scan-fill"></div></div>
+                        </div>
+                        <div class="float-card fc-3">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Expires quickly</span>
+                            <strong>15 mins only</strong>
+                        </div>
+                        <div class="hero-paw-large">🐾</div>
                     </div>
                 </div>
             </div>
