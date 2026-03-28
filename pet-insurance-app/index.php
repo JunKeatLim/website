@@ -99,6 +99,18 @@ if (empty($plans)) {
                     </div>
                 </div>
             </div>
+            <!-- Mobile / tablet: compact pet-themed strip (desktop keeps floating cards column) -->
+            <div class="row d-lg-none justify-content-center pt-2 pb-1">
+                <div class="col-12 text-center">
+                    <p class="hero-mobile-strip-label text-white-50 small text-uppercase mb-2">Built for dogs, cats &amp; you</p>
+                    <div class="hero-mobile-strip d-flex justify-content-center align-items-center flex-wrap gap-3 gap-md-4" role="presentation">
+                        <span class="hero-mobile-strip__item"><i class="bi bi-heart-pulse" aria-hidden="true"></i><span>Healthy pets</span></span>
+                        <span class="hero-mobile-strip__item"><i class="bi bi-shield-check" aria-hidden="true"></i><span>Clear coverage</span></span>
+                        <span class="hero-mobile-strip__item"><i class="bi bi-cpu" aria-hidden="true"></i><span>AI claims</span></span>
+                        <span class="hero-mobile-strip__item"><i class="bi bi-phone" aria-hidden="true"></i><span>Mobile-first</span></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -188,11 +200,27 @@ if (empty($plans)) {
             <div class="row g-4">
                 <?php
                 $testimonials = [
-                    ['name' => 'Sarah L.', 'pet' => 'Owner of Mochi the Shih Tzu',  'avatar' => 'SL', 'rating' => 5, 'text' => 'I uploaded the receipt on my phone and had a quote in under 2 minutes. Genuinely impressed!'],
-                    ['name' => 'James T.', 'pet' => 'Owner of Duke the Labrador',    'avatar' => 'JT', 'rating' => 5, 'text' => 'Duke had emergency surgery last year. PawShield covered 80% of the bill. The AI scanning made it painless.'],
-                    ['name' => 'Priya K.', 'pet' => 'Owner of Luna the Persian Cat', 'avatar' => 'PK', 'rating' => 5, 'text' => 'Finally a pet insurance that doesn\'t make you fill out endless forms. Highly recommend the Premium plan.'],
+                    ['name' => 'Sarah L.', 'pet' => 'Owner of Mochi the Shih Tzu',  'avatar' => 'SL', 'pet_image' => 'mochi-shih-tzu', 'pet_alt' => 'Mochi, a Shih Tzu', 'rating' => 5, 'text' => 'I uploaded the receipt on my phone and had a quote in under 2 minutes. Genuinely impressed!'],
+                    ['name' => 'James T.', 'pet' => 'Owner of Duke the Labrador',    'avatar' => 'JT', 'pet_image' => 'duke-labrador',   'pet_alt' => 'Duke, a Labrador retriever', 'rating' => 5, 'text' => 'Duke had emergency surgery last year. PawShield covered 80% of the bill. The AI scanning made it painless.'],
+                    ['name' => 'Priya K.', 'pet' => 'Owner of Luna the Persian Cat', 'avatar' => 'PK', 'pet_image' => 'luna-persian',    'pet_alt' => 'Luna, a Persian cat', 'rating' => 5, 'text' => 'Finally a pet insurance that doesn\'t make you fill out endless forms. Highly recommend the Premium plan.'],
                 ];
-                foreach ($testimonials as $t): ?>
+                $testimonialPetDir = __DIR__ . '/assets/images/testimonials/';
+                $testimonialPetExts = ['png', 'jpg', 'jpeg', 'webp'];
+                foreach ($testimonials as $t):
+                    $petBase = $t['pet_image'] ?? '';
+                    $petFile = '';
+                    if ($petBase !== '') {
+                        foreach ($testimonialPetExts as $ext) {
+                            $try = $petBase . '.' . $ext;
+                            if (is_file($testimonialPetDir . $try)) {
+                                $petFile = $try;
+                                break;
+                            }
+                        }
+                    }
+                    $hasPetImg = $petFile !== '';
+                    $petImgSrc = $hasPetImg ? (base_path() . '/assets/images/testimonials/' . rawurlencode($petFile)) : '';
+                ?>
                 <div class="col-md-4">
                     <div class="testimonial-card" role="article">
                         <div class="testimonial-stars" role="img" aria-label="<?php echo (int) $t['rating']; ?> out of 5 stars">
@@ -204,7 +232,13 @@ if (empty($plans)) {
                             "<?php echo htmlspecialchars($t['text'], ENT_QUOTES, 'UTF-8'); ?>"
                         </blockquote>
                         <div class="testimonial-author">
-                            <div class="author-avatar" aria-hidden="true"><?php echo $t['avatar']; ?></div>
+                            <div class="author-avatar<?php echo $hasPetImg ? ' author-avatar--pet' : ''; ?>"<?php echo $hasPetImg ? '' : ' aria-hidden="true"'; ?>>
+                                <?php if ($hasPetImg): ?>
+                                    <img src="<?= esc($petImgSrc) ?>" alt="<?= esc($t['pet_alt'] ?? 'Pet photo') ?>" width="52" height="52" loading="lazy" decoding="async">
+                                <?php else: ?>
+                                    <span class="author-avatar-initials"><?php echo esc($t['avatar']); ?></span>
+                                <?php endif; ?>
+                            </div>
                             <div>
                                 <strong><?php echo htmlspecialchars($t['name'], ENT_QUOTES, 'UTF-8'); ?></strong>
                                 <span class="author-pet"><?php echo htmlspecialchars($t['pet'], ENT_QUOTES, 'UTF-8'); ?></span>
