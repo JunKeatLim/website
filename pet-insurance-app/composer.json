@@ -1,6 +1,0 @@
-{
-    "require": {
-        "stripe/stripe-php": "^19.4",
-        "google/cloud-document-ai": "^2.6"
-    }
-}

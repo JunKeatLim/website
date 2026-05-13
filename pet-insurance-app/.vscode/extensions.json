@@ -1,9 +1,0 @@
-{
-    "recommendations": [
-        "xdebug.php-debug",
-        "bmewburn.vscode-intelephense-client",
-        "ecmel.vscode-html-css",
-        "formulahendry.auto-close-tag",
-        "esbenp.prettier-vscode"
-    ]
-}
