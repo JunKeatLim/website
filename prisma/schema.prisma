@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  createdAt     DateTime  @default(now())
+  watchlist     WatchlistItem[]
+  searches      SearchHistory[]
+}
+
+model CompanyCache {
+  id               String   @id @default(cuid())
+  pitchbookId      String?  @unique
+  companyName      String
+  domain           String?  @unique
+  rawPayload       Json?
+  overview         Json?
+  investors        Json?
+  deals            Json?
+  news             Json?
+  contact          Json?
+  location         Json?
+  fetchedAt        DateTime @default(now())
+  ttlExpiresAt     DateTime
+  lastSearchedAt   DateTime @default(now())
+  searchCount      Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([companyName])
+  @@index([domain])
+}
+
+model WatchlistItem {
+  id          String   @id @default(cuid())
+  userId      String
+  companyId   String
+  addedAt     DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, companyId])
+  @@index([userId])
+}
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  userId      String?
+  query       String
+  companyId   String?
+  searchedAt  DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}

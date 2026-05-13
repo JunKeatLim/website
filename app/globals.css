@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Theme variables — injected by app/layout.tsx from lib/theme.ts */
+:root {
+  --cp: #005f78;          /* primary colour */
+  --cp-rgb: 0, 95, 120;  /* primary as r,g,b for rgba() */
+  --cbg: #f0f4ff;         /* canvas background */
+  --canvas: var(--cbg);
+}
+
+body {
+  background: var(--canvas);
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Cambria, Georgia, "Times New Roman", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(var(--cp-rgb), 0.18); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--cp-rgb), 0.3); }
